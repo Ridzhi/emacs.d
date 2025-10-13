@@ -1,4 +1,13 @@
 ;; -*- lexical-binding: t; -*-
+;; before:
+;; rustup component add rust-analyzer
+;; brew install gopls
+;;
+;;
+;;
+;; after:
+;; M-x all-the-icons-install-fonts (if use all-the-icons)
+
 (add-to-list 'default-frame-alist '(fullscreen . maximized))
 (setq package-archives
   '(("melpa" . "https://melpa.org/packages/")
@@ -19,11 +28,15 @@
 
 ;(treesit-library-abi-version)
 
+(setq-default tab-width 4)
+
 (use-package emacs
   :bind (([remap list-buffers] . ibuffer)
 	 ("M-s-<left>" . previous-buffer)
 	 ("M-s-<right>" . next-buffer)
 	 ("M-<f7>" . xref-find-referencess)
+     ("s-/" . comment-line)
+     ("s-d" . duplicate-thing)       
 	 ("s-<backspace>" . kill-whole-line)
 	 ("s-<return>" . (lambda() (interactive)
 			   (move-end-of-line nil)
@@ -53,6 +66,12 @@
 	'((rust-ts-mode . rust-mode)
 	  (js2-mode . js-ts-mode)))
   (setq backup-directory-alist '(("." . "~/.saves"))))
+
+(use-package editorconfig
+  :config
+  (editorconfig-mode 1))
+
+(use-package duplicate-thing)
 
 ;; Indents
 ;; (setq-default tab-width 4)
@@ -87,11 +106,8 @@
 (use-package golden-ratio)
 (golden-ratio-mode 1)
 
-;; after run:
-;;   - M-x all-the-icons-install-fonts
 (use-package all-the-icons
   :if (display-graphic-p))
-
 
 (use-package dashboard
   :custom
@@ -133,12 +149,6 @@
 ;; reasons:
 ;;   - base tool integration: cargo, clippy, rustfmt
 ;;   - syntax highlighting
-;; treesitter-derive requires preinstalls
-;;   - goes to https://github.com/casouri/tree-sitter-module/releases and download last release
-;;   - copy all libs to ~/.emacs/tree-sitter/ (or some shared, fe /usr/loca/lib)
-;;   - if you get modal that mac os cant open dylib goes to settings -> security&privacy and allows to open
-;; ensure done:
-;;   - rustup component add rust-analyzer
 (use-package rust-mode
   :init
   (setq rust-mode-treesitter-derive t)
@@ -147,12 +157,21 @@
   :custom
   (rust-format-on-save t))
 
+(use-package web-mode
+    :config
+    (setq web-mode-style-padding 0)
+	(setq web-mode-css-indent-offset 0)
+    (setq web-mode-code-indent-offset 0)
+    (setq web-mode-markup-indent-offset 2)
+    :mode
+    (("\\.vue\\'" . web-mode)))
 
 (use-package lsp-mode
   :config
   (setq lsp-inlay-hint-enable t)
   :hook
   (rust-mode . lsp)
+  (go-ts-mode . lsp)
   (typescript-ts-mode . lsp)
   (js-ts-mode . lsp)
   (web-mode . lsp)
@@ -199,7 +218,10 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(package-selected-packages nil))
+ '(package-selected-packages nil)
+ '(safe-local-variable-values
+      '((web-mode-indent-style . 2) (web-mode-block-padding . 2)
+           (web-mode-script-padding . 2) (web-mode-style-padding . 2))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
