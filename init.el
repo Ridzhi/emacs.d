@@ -183,7 +183,7 @@
          ("<f9>" . go-run)
          ("<f10>" . go-run-tests))
     :hook
-    (go-mode . gofmt-before-save))
+    (before-save-hook . gofmt-before-save))
 
 (use-package go-ts-mode
   :bind (
