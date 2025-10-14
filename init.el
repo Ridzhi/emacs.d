@@ -64,6 +64,7 @@
   (setq xref-search-program 'ripgrep)
   (setq major-mode-remap-alist
 	'((rust-ts-mode . rust-mode)
+      (go-ts-mode . go-mode)   
 	  (js2-mode . js-ts-mode)))
   (setq backup-directory-alist '(("." . "~/.saves"))))
 
@@ -73,10 +74,6 @@
 
 (use-package duplicate-thing)
 
-;; Indents
-;; (setq-default tab-width 4)
-;; (add-to-list 'auto-mode-alist '("package.json" . (lambda() () (setq tab-width 2))))
-
 (use-package posframe)
 
 (use-package vertico-posframe
@@ -85,11 +82,22 @@
 
 
 ;; Remove the border
-(setq modus-themes-common-palette-overrides
-      '((border-mode-line-active unspecified)
-	(border-mode-line-inactive unspecified)))
+;; (setq modus-themes-common-palette-overrides
+      ;; '((border-mode-line-active unspecified)
+	;; (border-mode-line-inactive unspecified)))
 
-(load-theme 'modus-vivendi-tinted t)
+
+(use-package doom-themes
+  :custom
+  ;; Global settings (defaults)
+  (doom-themes-enable-bold t)   ; if nil, bold is universally disabled
+  (doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  :config
+  (load-theme 'doom-challenger-deep t)
+  ;; Enable flashing mode-line on errors
+  (doom-themes-visual-bell-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+  (doom-themes-org-config))
 
 (set-frame-font "JetBrains Mono 14" nil t)
 (global-display-line-numbers-mode 1)
@@ -157,6 +165,32 @@
   :custom
   (rust-format-on-save t))
 
+;; Golang
+(defun go-run ()
+      "Run the current Go project."
+      (interactive)
+      (async-shell-command "go run ."))
+
+;; Golang
+(defun go-run-tests ()
+      "Run the current Go project tests"
+      (interactive)
+      (async-shell-command "go test ./..."))
+
+(use-package go-mode
+    :bind (
+         :map go-mode-map
+         ("<f9>" . go-run)
+         ("<f10>" . go-run-tests))
+    :hook
+    (go-mode . gofmt-before-save))
+
+(use-package go-ts-mode
+  :bind (
+         :map go-ts-mode-map
+         ("<f9>" . go-run)
+         ("<f10>" . go-run-tests)))
+
 (use-package web-mode
     :config
     (setq web-mode-style-padding 0)
@@ -170,11 +204,12 @@
   :config
   (setq lsp-inlay-hint-enable t)
   :hook
-  (rust-mode . lsp)
-  (go-ts-mode . lsp)
-  (typescript-ts-mode . lsp)
-  (js-ts-mode . lsp)
-  (web-mode . lsp)
+  (rust-mode . lsp-deferred)
+  (go-ts-mode . lsp-deferred)
+  (go-mode . lsp-deferred)
+  (typescript-ts-mode . lsp-deferred)
+  (js-ts-mode . lsp-deferred)
+  (web-mode . lsp-deferred)
   :commands lsp)
 
 (use-package treesit-auto
@@ -218,6 +253,18 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+      '("dd4582661a1c6b865a33b89312c97a13a3885dc95992e2e5fc57456b4c545176"
+           "f64189544da6f16bab285747d04a92bd57c7e7813d8c24c30f382f087d460a33"
+           "e8bd9bbf6506afca133125b0be48b1f033b1c8647c628652ab7a2fe065c10ef0"
+           "77fff78cc13a2ff41ad0a8ba2f09e8efd3c7e16be20725606c095f9a19c24d3d"
+           "0c83e0b50946e39e237769ad368a08f2cd1c854ccbcd1a01d39fdce4d6f86478"
+           "0325a6b5eea7e5febae709dab35ec8648908af12cf2d2b569bedc8da0a3a81c1"
+           "13096a9a6e75c7330c1bc500f30a8f4407bd618431c94aeab55c9855731a95e1"
+           "7de64ff2bb2f94d7679a7e9019e23c3bf1a6a04ba54341c36e7cf2d2e56e2bcc"
+           "02d422e5b99f54bd4516d4157060b874d14552fe613ea7047c4a5cfa1288cf4f"
+           "b9761a2e568bee658e0ff723dd620d844172943eb5ec4053e2b199c59e0bcc22"
+           default))
  '(package-selected-packages nil)
  '(safe-local-variable-values
       '((web-mode-indent-style . 2) (web-mode-block-padding . 2)
