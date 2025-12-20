@@ -30,10 +30,12 @@
 
 (setq-default tab-width 4)
 
-(make-directory (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
+(make-directory
+    (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
 
 (use-package emacs
-  :bind (([remap list-buffers] . ibuffer)
+  :bind
+    (([remap list-buffers] . ibuffer)
 	 ("M-s-<left>" . previous-buffer)
 	 ("M-s-<right>" . next-buffer)
 	 ("M-<f7>" . xref-find-referencess)
@@ -61,7 +63,8 @@
   ;; Hide commands in M-x which do not work in the current mode.  Vertico
   ;; commands are hidden in normal buffers. This setting is useful beyond
   ;; Vertico.
-  (read-extended-command-predicate #'command-completion-default-include-p)
+  (read-extended-command-predicate
+      #'command-completion-default-include-p)
   ;; Do not allow the cursor in the minibuffer prompt
   (minibuffer-prompt-properties
    '(read-only t cursor-intangible t face minibuffer-prompt))
@@ -74,9 +77,16 @@
 	'((rust-ts-mode . rust-mode)
       (go-ts-mode . go-mode)   
 	  (js2-mode . js-ts-mode)))
-  (setq backup-directory-alist '(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory))))
-  (setq auto-save-list-file-prefix (expand-file-name "tmp/auto-saves/sessions/" user-emacs-directory)
-      auto-save-file-name-transforms `((".*" ,(expand-file-name "tmp/auto-saves/" user-emacs-directory) t)))
+  (setq backup-directory-alist
+      '(("." . ,(expand-file-name "tmp/backups/" user-emacs-directory))))
+  (setq auto-save-list-file-prefix
+      (expand-file-name "tmp/auto-saves/sessions/"
+          user-emacs-directory)
+      auto-save-file-name-transforms
+      `
+      ((".*"
+           ,(expand-file-name "tmp/auto-saves/" user-emacs-directory)
+           t)))
   (setq create-lockfiles nil)  
     )
 
@@ -117,7 +127,8 @@
 
 
 (use-package all-the-icons
-  :if (display-graphic-p))
+  :if
+    (display-graphic-p))
 
 (use-package dashboard
   :custom
@@ -144,8 +155,10 @@
 (use-package flycheck)
 
 (use-package lsp-ui)
-(define-key lsp-ui-mode-map [remap xref-find-definitions] #'lsp-ui-peek-find-definitions)
-(define-key lsp-ui-mode-map [remap xref-find-references] #'lsp-ui-peek-find-references)
+(define-key lsp-ui-mode-map [remap xref-find-definitions]
+    #'lsp-ui-peek-find-definitions)
+(define-key lsp-ui-mode-map [remap xref-find-references]
+    #'lsp-ui-peek-find-references)
 
 ;; modular completion framework
 (use-package company
@@ -180,7 +193,8 @@
       (async-shell-command "go test ./..."))
 
 (use-package go-mode
-    :bind (
+    :bind
+    (
          :map go-mode-map
          ("<f9>" . go-run)
          ("<f10>" . go-run-tests))
@@ -188,7 +202,8 @@
     (before-save-hook . gofmt-before-save))
 
 (use-package go-ts-mode
-  :bind (
+  :bind
+    (
          :map go-ts-mode-map
          ("<f9>" . go-run)
          ("<f10>" . go-run-tests)))
@@ -225,7 +240,8 @@
 ;; if node was installed via nvm
 (let ((node-bin
        (string-replace "/node\n" ""
-                       (shell-command-to-string ". $HOME/.nvm/nvm.sh && nvm which current"))))
+                       (shell-command-to-string
+                           ". $HOME/.nvm/nvm.sh && nvm which current"))))
   (add-to-list 'exec-path node-bin)
   (setenv "PATH"
           (concat node-bin ":" (getenv "PATH"))))
@@ -248,7 +264,8 @@
   (completion-styles '(orderless basic))
   (completion-category-overrides '((file (styles partial-completion))))
   (completion-category-defaults nil) ;; Disable defaults, use our settings
-    (completion-pcm-leading-wildcard t)) ;; Emacs 31: partial-completion behaves like substring
+    (completion-pcm-leading-wildcard t))
+;; Emacs 31: partial-completion behaves like substring
 
 (use-package gptel
     :config
@@ -263,7 +280,8 @@
 
 (use-package consult
   ;; Replace bindings. Lazily loaded by `use-package'.
-  :bind (;; C-c bindings in `mode-specific-map'
+  :bind
+    (;; C-c bindings in `mode-specific-map'
          ("C-c M-x" . consult-mode-command)
          ("C-c h" . consult-history)
          ("C-c k" . consult-kmacro)
@@ -315,7 +333,8 @@
          ;; Minibuffer history
          :map minibuffer-local-map
          ("M-s" . consult-history)                 ;; orig. next-matching-history-element
-         ("M-r" . consult-history))                ;; orig. previous-matching-history-element
+         ("M-r" . consult-history))
+    ;; orig. previous-matching-history-element
 
   ;; Enable automatic preview at point in the *Completions* buffer. This is
   ;; relevant when you use the default completion UI.
@@ -369,7 +388,8 @@
   ;; Bind `marginalia-cycle' locally in the minibuffer.  To make the binding
   ;; available in the *Completions* buffer, add it to the
   ;; `completion-list-mode-map'.
-  :bind (:map minibuffer-local-map
+  :bind
+    (:map minibuffer-local-map
          ("M-A" . marginalia-cycle))
 
   ;; The :init section is always executed.
@@ -384,7 +404,8 @@
   :bind
   (("C-." . embark-act)         ;; pick some comfortable binding
    ("C-;" . embark-dwim)        ;; good alternative: M-.
-   ("C-h B" . embark-bindings)) ;; alternative for `describe-bindings'
+   ("C-h B" . embark-bindings))
+    ;; alternative for `describe-bindings'
 
   :init
 
@@ -411,11 +432,15 @@
                '("\\`\\*Embark Collect \\(Live\\|Completions\\)\\*"
                  nil
                  (window-parameters (mode-line-format . none)))))
-
 ;; Consult users will also want the embark-consult package.
 (use-package embark-consult
-  :hook
-  (embark-collect-mode . consult-preview-at-point-mode))
+    :hook
+    (embark-collect-mode . consult-preview-at-point-mode))
+
+(use-package move-text
+    :bind
+    (("s-<up>" . move-text-up)
+    ("s-<down>" . move-text-down)))
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -434,7 +459,13 @@
            "02d422e5b99f54bd4516d4157060b874d14552fe613ea7047c4a5cfa1288cf4f"
            "b9761a2e568bee658e0ff723dd620d844172943eb5ec4053e2b199c59e0bcc22"
            default))
- '(package-selected-packages nil)
+ '(package-selected-packages
+      '(all-the-icons avy color-theme-sanityinc-tomorrow company dashboard
+           deadgrep doom-themes duplicate-thing embark-consult
+           exec-path-from-shell expand-region flycheck go-mode gptel
+           lsp-ui magit marginalia move-text orderless
+           punch-line-battery rust-mode treesit-auto vertico-posframe
+           web-mode))
  '(safe-local-variable-values
       '((web-mode-indent-style . 2) (web-mode-block-padding . 2)
            (web-mode-script-padding . 2) (web-mode-style-padding . 2))))
