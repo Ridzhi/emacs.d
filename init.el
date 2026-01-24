@@ -33,12 +33,14 @@
 (make-directory
     (expand-file-name "tmp/auto-saves/" user-emacs-directory) t)
 
+(defun buffer-occur-body-function (window)
+    (select-window window))
+
 (use-package emacs
   :bind
     (([remap list-buffers] . ibuffer)
 	 ("M-s-<left>" . previous-buffer)
 	 ("M-s-<right>" . next-buffer)
-	 ("M-<f7>" . xref-find-referencess)
      ("s-/" . comment-line)
      ("s-w" . er/expand-region)
      ("s-d" . duplicate-thing)       
@@ -51,8 +53,9 @@
 			   (electric-newline-and-maybe-indent)))
 	 ("<f5>" . deadgrep)
 	 ("S-<f6>" . lsp-rename)
-	 ("s-b" . xref-find-definitions)
 	 ("s-f" . consult-ripgrep)
+	 ("s-g" . avy-goto-word-1)
+	 ("s-b" . xref-find-definitions)
 	 ("M-<f7>" . xref-find-references))
   :custom
   ;; Enable context menu. `vertico-multiform-mode' adds a menu in the minibuffer
@@ -87,9 +90,26 @@
       ((".*"
            ,(expand-file-name "tmp/auto-saves/" user-emacs-directory)
            t)))
-  (setq create-lockfiles nil)  
+    (setq create-lockfiles nil)
+    (setq display-buffer-alist
+        '(
+             ("\\*Occur\\*"
+                 (display-buffer-reuse-mode-window
+                     display-buffer-below-selected)
+                 (dedicated . t)
+                 (body-function . buffer-occur-body-function)
+                 )
+         )
     )
+)
 
+(use-package elisp-autofmt
+  :commands (elisp-autofmt-mode elisp-autofmt-buffer)
+  :hook (emacs-lisp-mode . elisp-autofmt-mode))
+
+(use-package all-the-icons-dired
+    :hook
+    (dired-mode-hook . all-the-icons-dired-mode))
 
 (use-package editorconfig
   :config
@@ -107,11 +127,25 @@
 
 
 ;; Remove the border
-(setq modus-themes-common-palette-overrides
-      '((border-mode-line-active unspecified)
-	(border-mode-line-inactive unspecified)))
+;; (setq modus-themes-common-palette-overrides
+      ;; '((border-mode-line-active unspecified)
+	;; (border-mode-line-inactive unspecified)))
 
-(load-theme 'modus-operandi-tinted)
+;; (load-theme 'modus-operandi-tinted)
+
+(use-package doom-themes
+  :ensure t
+  :custom
+  ;; Global settings (defaults)
+  (doom-themes-enable-bold t)   ; if nil, bold is universally disabled
+  (doom-themes-enable-italic t) ; if nil, italics is universally disabled
+  :config
+    (load-theme 'doom-xcode t)
+
+  ;; Enable flashing mode-line on errors
+    (doom-themes-visual-bell-config)
+  ;; Corrects (and improves) org-mode's native fontification.
+    (doom-themes-org-config))
 
 (set-frame-font "JetBrains Mono 14" nil t)
 (global-display-line-numbers-mode 1)
@@ -305,7 +339,6 @@
          ;; M-g bindings in `goto-map'
          ("M-g e" . consult-compile-error)
          ("M-g r" . consult-grep-match)
-         ("M-g f" . consult-flymake)               ;; Alternative: consult-flycheck
          ("M-g g" . consult-goto-line)             ;; orig. goto-line
          ("M-g M-g" . consult-goto-line)           ;; orig. goto-line
          ("M-g o" . consult-outline)               ;; Alternative: consult-org-heading
@@ -442,6 +475,20 @@
     (("s-<up>" . move-text-up)
     ("s-<down>" . move-text-down)))
 
+(use-package key-chord
+    :config
+    (key-chord-mode t)
+    (key-chord-define-global "ff" 'consul-imenu)
+    (key-chord-define-global "jj" 'avy-goto-word-1))
+
+(use-package direnv
+    :config
+    (direnv-mode))
+
+(use-package dired-subtree
+    :bind (:map dired-mode-map
+                ("<tab>" . dired-subtree-toggle)))
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
@@ -460,12 +507,12 @@
            "b9761a2e568bee658e0ff723dd620d844172943eb5ec4053e2b199c59e0bcc22"
            default))
  '(package-selected-packages
-      '(all-the-icons avy color-theme-sanityinc-tomorrow company dashboard
-           deadgrep doom-themes duplicate-thing embark-consult
+      '(all-the-icons-dired avy color-theme-sanityinc-tomorrow company
+           dashboard deadgrep dired-subtree direnv doom-themes
+           duplicate-thing elisp-autofmt embark-consult
            exec-path-from-shell expand-region flycheck go-mode gptel
-           lsp-ui magit marginalia move-text orderless
-           punch-line-battery rust-mode treesit-auto vertico-posframe
-           web-mode))
+           key-chord lsp-ui magit marginalia move-text orderless
+           rust-mode treesit-auto vertico-posframe web-mode))
  '(safe-local-variable-values
       '((web-mode-indent-style . 2) (web-mode-block-padding . 2)
            (web-mode-script-padding . 2) (web-mode-style-padding . 2))))
